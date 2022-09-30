@@ -132,9 +132,9 @@ class Path:
         print('\n')
 
 def main():
-    GOAL = (31,18)
+    #GOAL = (31,18)
     #GOAL = (21,16)
-    #GOAL = (8,18)
+    GOAL = (8,18)
     ACC_LEN = 1
     POP_SIZE = 1000
     STRIDE_LEN = 200
