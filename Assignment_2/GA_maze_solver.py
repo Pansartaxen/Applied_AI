@@ -128,7 +128,7 @@ class Path:
                 marker = '0'
             maze_cpy[y][x] = marker
         for row in maze_cpy:
-            print(row)
+            print(' '.join(row))
         print('\n')
 
 def main():
@@ -170,7 +170,7 @@ def main():
                         population[i].moveLeft()
                     elif move == 4:
                         population[i].moveRight()
-            
+
             for number in population[i].path:
                 zero_cnt = 0
                 if number == 0:
