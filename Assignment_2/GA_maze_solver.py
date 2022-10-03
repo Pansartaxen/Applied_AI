@@ -4,9 +4,15 @@ import numpy as np
 import math
 from playsound import playsound
 from matplotlib import pyplot as plt
+import copy
 
-global maze
-maze = [
+#GOAL = (31,18)
+#GOAL = (21,16)
+GOAL = (8,18)
+ACC_LEN = 1
+POP_SIZE = 1000
+STRIDE_LEN = 200
+MAZE = [
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
     ['#', 'S', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', '#', '#'],
     ['#', ' ', ' ', '#', '#', '#', ' ', '#', '#', ' ', '#', '#', ' ', '#', ' ', '#', ' ', ' ', '#', ' ', ' ', '#', ' ', '#', ' ', ' ', ' ', ' ', '#', ' ', '#', '#', '#'],
@@ -36,7 +42,7 @@ class Path:
         self.position = [1,1]
         self.fitness = 9999
 
-    def moveValidation(self, maze, move, x, y):
+    def moveValidation(self, move, x, y):
         """
         Checks if the move is valid
         0: Do nothing
@@ -46,25 +52,25 @@ class Path:
         4: Move right
         """
         if move == 1:
-            if maze[y-1][x] == '#':
+            if MAZE[y-1][x] == '#':
                 self.wall_hits += 1
                 return False
             else:
                 return True
         elif move == 2:
-            if maze[y+1][x] == '#':
+            if MAZE[y+1][x] == '#':
                 self.wall_hits += 1
                 return False
             else:
                 return True
         elif move == 3:
-            if maze[y][x-1] == '#':
+            if MAZE[y][x-1] == '#':
                 self.wall_hits += 1
                 return False
             else:
                 return True
         elif move == 4:
-            if maze[y][x+1] == '#':
+            if MAZE[y][x+1] == '#':
                 self.wall_hits += 1
                 return False
             else:
@@ -75,7 +81,7 @@ class Path:
 
     def moveLeft(self):
         self.position = (self.position[0]-1, self.position[1])
-    
+
     def moveUp(self):
         self.position = (self.position[0], self.position[1]-1)
 
@@ -107,11 +113,11 @@ class Path:
         3: Move left
         4: Move right
         """
-        self.position = (1,1)
-        maze_cpy = maze
+        self.position = [1,1]
+        maze_cpy = copy.deepcopy(MAZE)
         for move in self.path:
             x, y = self.position[0], self.position[1]
-            if self.moveValidation(maze_cpy, move, x, y):
+            if self.moveValidation(move, x, y):
                 if move == 1:
                     marker = '^'
                     self.moveUp()
@@ -127,21 +133,17 @@ class Path:
             else:
                 marker = '0'
             maze_cpy[y][x] = marker
+
         for row in maze_cpy:
             print(' '.join(row))
         print('\n')
 
+        maze_cpy.clear()
+
 def main():
-    #GOAL = (31,18)
-    #GOAL = (21,16)
-    GOAL = (8,18)
-    ACC_LEN = 1
-    POP_SIZE = 1000
-    STRIDE_LEN = 200
     best_path = None
     population = []
     best_score = 100000
-
     generation = 0
     score_lst = []
     gen_lst = []
@@ -161,7 +163,7 @@ def main():
                 x, y = population[i].position[0], population[i].position[1]
                 move = population[i].path[j]
 
-                if population[i].moveValidation(maze, move, x, y):
+                if population[i].moveValidation(move, x, y):
                     if move == 1:
                         population[i].moveUp()
                     elif move == 2:
@@ -177,8 +179,7 @@ def main():
                     zero_cnt += 1
 
             #score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 + (population[i].wall_hits)/50
-            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/5 + (population[i].wall_hits)/50
-            #score = math.sqrt((population[i].position[0] - GOAL[0])**2 + (population[i].position[1] - GOAL[1])**2) + population[i].wall_hits/10
+            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/3 + (population[i].wall_hits)/30
             population[i].fitness = score
             if score < best_score:
                 best_score = score
@@ -195,14 +196,13 @@ def main():
             print('\n')
 
         new_population = [] 
-        s = int(10*POP_SIZE/100)
+        s = int(15*POP_SIZE/100)
         new_population = population[:s].copy()
 
-        for _ in range(int(50*POP_SIZE/100)): 
+        for _ in range(int(45*POP_SIZE/100)): 
             individual = random.choice(population[30:50])
             new_path = []
             path = individual.path
-
             for k in range(STRIDE_LEN):
                 if random.random() < 0.6:
                     new_path.append(random.randint(0,4))
