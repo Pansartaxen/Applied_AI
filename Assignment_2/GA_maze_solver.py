@@ -176,7 +176,7 @@ def main():
                 if number == 0:
                     zero_cnt += 1
 
-            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/2 + (population[i].wall_hits)/40
+            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/1 + (population[i].wall_hits)/30
             population[i].fitness = score
             if score < best_score:
                 best_score = score
