@@ -1,15 +1,13 @@
 import random
-from time import sleep
 import numpy as np
-import math
 from playsound import playsound
 from matplotlib import pyplot as plt
 import copy
 
-#GOAL = (31,18)
+GOAL = (31,18)
 #GOAL = (21,16)
-GOAL = (8,18)
-ACC_LEN = 1
+#GOAL = (8,18)
+ACCEPTED_SCORE = 1
 POP_SIZE = 1000
 STRIDE_LEN = 200
 MAZE = [
@@ -152,7 +150,7 @@ def main():
         population.append(Path(list(np.random.randint(low = 0,high=4,size=STRIDE_LEN))))
     print('*-*-*-*-* Population created *-*-*-*-*')
 
-    while best_score > ACC_LEN:
+    while best_score > ACCEPTED_SCORE:
         generation += 1
         best_score = 100000
         best_path = None
@@ -178,8 +176,7 @@ def main():
                 if number == 0:
                     zero_cnt += 1
 
-            #score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 + (population[i].wall_hits)/50
-            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/3 + (population[i].wall_hits)/30
+            score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/2 + (population[i].wall_hits)/40
             population[i].fitness = score
             if score < best_score:
                 best_score = score
@@ -195,22 +192,22 @@ def main():
             print('best_score: ', best_score, 'generation: ', generation)
             print('\n')
 
-        new_population = [] 
-        s = int(15*POP_SIZE/100)
+        new_population = []
+        s = int(10*POP_SIZE/100)
         new_population = population[:s].copy()
 
-        for _ in range(int(45*POP_SIZE/100)): 
+        for _ in range(int(45*POP_SIZE/100)):
             individual = random.choice(population[30:50])
             new_path = []
             path = individual.path
             for k in range(STRIDE_LEN):
-                if random.random() < 0.6:
+                if random.random() < 0.7:
                     new_path.append(random.randint(0,4))
                 else:
                     new_path.append(path[k])
             new_population.append(Path(new_path))
 
-        for _ in range(int(40*POP_SIZE/100)): 
+        for _ in range(int(45*POP_SIZE/100)):
             parent1 = random.choice(population[0:30])
             parent2 = random.choice(population[0:30])
             child = parent1.mate(parent2)
@@ -220,10 +217,11 @@ def main():
 
     print('best_path: ', best_path.path, 'was found in generation: ', generation, 'with score: ', best_score, '\n')
     best_path.printPath()
-    playsound('/Users/mariusstokkedal/Desktop/DV2619_Tillämpad_AI/Assignment_2/fanfare.wav')
+    playsound('./fanfare.wav')
     plt.plot(gen_lst, score_lst)
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
+    plt.grid()
     plt.show()
 
 if __name__ == '__main__':
