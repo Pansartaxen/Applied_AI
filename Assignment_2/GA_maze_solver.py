@@ -1,8 +1,14 @@
+'''
+Marius Stokkedal
+matk20@student.bth.se
+Sep 2022
+'''
+
 import random
+import copy
 import numpy as np
 from playsound import playsound
 from matplotlib import pyplot as plt
-import copy
 
 GOAL = (31,18)
 #GOAL = (21,16)
@@ -40,56 +46,65 @@ class Path:
         self.position = [1,1]
         self.fitness = 9999
 
-    def moveValidation(self, move, x, y):
+    def get_fitness(self):
+        '''Returns the fitness of the path'''
+        return self.fitness
+
+    def set_fitness(self, fitness):
+        '''Sets the fitness of the path'''
+        self.fitness = fitness
+
+    def move_validation(self, move, x_cord, y_cord):
         """
         Checks if the move is valid
-        0: Do nothing
         1: Move up
         2: Move down
         3: Move left
         4: Move right
+        Returns True if the move is valid
+        and False if the move is invalid
         """
         if move == 1:
-            if MAZE[y-1][x] == '#':
+            if MAZE[y_cord-1][x_cord] == '#':
                 self.wall_hits += 1
                 return False
-            else:
-                return True
         elif move == 2:
-            if MAZE[y+1][x] == '#':
+            if MAZE[y_cord+1][x_cord] == '#':
                 self.wall_hits += 1
                 return False
-            else:
-                return True
         elif move == 3:
-            if MAZE[y][x-1] == '#':
+            if MAZE[y_cord][x_cord-1] == '#':
                 self.wall_hits += 1
                 return False
-            else:
-                return True
         elif move == 4:
-            if MAZE[y][x+1] == '#':
+            if MAZE[y_cord][x_cord+1] == '#':
                 self.wall_hits += 1
                 return False
-            else:
-                return True
-    
-    def moveRight(self):
+
+        return True
+
+    def move_right(self):
+        '''Moves one step right'''
         self.position = (self.position[0]+1, self.position[1])
 
-    def moveLeft(self):
+    def move_left(self):
+        '''Moves one step left'''
         self.position = (self.position[0]-1, self.position[1])
 
-    def moveUp(self):
+    def move_up(self):
+        '''Moves one step up'''
         self.position = (self.position[0], self.position[1]-1)
 
-    def moveDown(self):
+    def move_down(self):
+        '''Moves one step down'''
         self.position = (self.position[0], self.position[1]+1)
-    
-    def changePath(self, path):
+
+    def change_path(self, path):
+        '''Sets a new path'''
         self.path = path
 
     def mate(self, par2):
+        '''Mate two parent-paths to create a new path'''
         child_path = []
         for gp1, gp2 in zip(self.path, par2.path):
             prob = random.random()
@@ -100,9 +115,9 @@ class Path:
             else:
                 child_path.append(random.randint(0,4))
 
-        return Path(child_path) 
+        return Path(child_path)
 
-    def printPath(self):
+    def print_path(self):
         """
         Prints path
         0: Do nothing
@@ -114,23 +129,23 @@ class Path:
         self.position = [1,1]
         maze_cpy = copy.deepcopy(MAZE)
         for move in self.path:
-            x, y = self.position[0], self.position[1]
-            if self.moveValidation(move, x, y):
+            x_cord, y_cord = self.position[0], self.position[1]
+            if self.move_validation(move, x_cord, y_cord):
                 if move == 1:
                     marker = '^'
-                    self.moveUp()
+                    self.move_up()
                 elif move == 2:
                     marker = 'v'
-                    self.moveDown()
+                    self.move_down()
                 elif move == 3:
                     marker = '<'
-                    self.moveLeft()
+                    self.move_left()
                 elif move == 4:
                     marker = '>'
-                    self.moveRight()
+                    self.move_right()
             else:
                 marker = '0'
-            maze_cpy[y][x] = marker
+            maze_cpy[y_cord][x_cord] = marker
 
         for row in maze_cpy:
             print(' '.join(row))
@@ -158,18 +173,18 @@ def main():
         for i in range(POP_SIZE):
             population[i].position = [1,1]
             for j in range(STRIDE_LEN):
-                x, y = population[i].position[0], population[i].position[1]
+                x_cord, y_cord = population[i].position[0], population[i].position[1]
                 move = population[i].path[j]
 
-                if population[i].moveValidation(move, x, y):
+                if population[i].move_validation(move, x_cord, y_cord):
                     if move == 1:
-                        population[i].moveUp()
+                        population[i].move_up()
                     elif move == 2:
-                        population[i].moveDown()
+                        population[i].move_down()
                     elif move == 3:
-                        population[i].moveLeft()
+                        population[i].move_left()
                     elif move == 4:
-                        population[i].moveRight()
+                        population[i].move_right()
 
             for number in population[i].path:
                 zero_cnt = 0
@@ -177,24 +192,24 @@ def main():
                     zero_cnt += 1
 
             score = abs(population[i].position[0] - GOAL[0])*33 + abs(population[i].position[1] - GOAL[1])*22 - (zero_cnt)/1 + (population[i].wall_hits)/30
-            population[i].fitness = score
+            population[i].set_fitness(score)
             if score < best_score:
                 best_score = score
                 best_path = population[i]
 
-        population = sorted(population, key = lambda x:x.fitness)
+        population = sorted(population, key = lambda x_cord:x_cord.get_fitness())
 
-        score_lst.append(population[0].fitness)
+        score_lst.append(population[0].get_fitness())
         gen_lst.append(generation)
 
-        if generation % 100 == 0:
-            population[0].printPath()
+        if generation % 10 == 0:
+            population[0].print_path()
             print('best_score: ', best_score, 'generation: ', generation)
             print('\n')
 
         new_population = []
-        s = int(10*POP_SIZE/100)
-        new_population = population[:s].copy()
+        stop = int(10*POP_SIZE/100)
+        new_population = population[:stop].copy()
 
         for _ in range(int(45*POP_SIZE/100)):
             individual = random.choice(population[30:50])
@@ -216,7 +231,7 @@ def main():
         population = new_population
 
     print('best_path: ', best_path.path, 'was found in generation: ', generation, 'with score: ', best_score, '\n')
-    best_path.printPath()
+    best_path.print_path()
     playsound('./fanfare.wav')
     plt.plot(gen_lst, score_lst)
     plt.xlabel('Generation')
