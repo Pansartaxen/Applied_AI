@@ -154,8 +154,6 @@ class Path:
             print(' '.join(row))
         print('\n')
 
-        maze_cpy.clear()
-
 def main():
     best_path = None
     population = []
