@@ -119,16 +119,6 @@ class Path:
             else:
                 child_path.append(random.randint(0,4))
 
-        # JUMP = 3
-        # for i in range(0, STRIDE_LEN, JUMP):
-        #     prob = random.random()
-        #     if prob < 0.4:
-        #         child_path.extend(self.path[i:i+JUMP])
-        #     elif prob < 0.8:
-        #         child_path.extend(par2.path[i:i+JUMP])
-        #     else:
-        #         child_path.extend([random.randint(0,4) for _ in range(JUMP)])
-        
         return Path(child_path)
 
     def print_path(self):
