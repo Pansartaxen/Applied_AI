@@ -44,7 +44,7 @@ def main():
     plt.legend()
     plt.xlabel('Board size')
     plt.ylabel('Time (seconds)')
-    #plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':
